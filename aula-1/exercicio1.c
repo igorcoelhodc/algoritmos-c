@@ -10,6 +10,8 @@ int main () {
     
     // Solicita ao usuário que insira as quatro notas
     printf("Nota 1: ");
+    
+    //Lê o valor inserido pelo usuário no terminal e armazena na variável correspondente
     scanf("%f",&nota1);
     printf("Nota 2: ");
     scanf("%f",&nota2);
