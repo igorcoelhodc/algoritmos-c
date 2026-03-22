@@ -11,13 +11,13 @@ int main () {
 
     // Solicita ao usuário que digite a senha
     printf("Digite a senha: ");
-    scanf("%c", &senha[12]);
+    gets(senha);
 
     // Compara a senha digitada com a senha pré-definida "ASDFG"
     if (!strcmp(senha, "ASDFG")) {
-        printf("Acesso permitido.\n");
+        printf("Acesso permitido\n");
     } else {
-        printf("Acesso negado.\n");
+        printf("Acesso negado\n");
     }
 
     return 0;
