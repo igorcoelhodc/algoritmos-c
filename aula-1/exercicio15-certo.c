@@ -6,19 +6,19 @@
 int main() {
     char opcaoMenu[20];
 	float num1, num2;
-	float raiz;
+	float raiz, raiz1;
 
     printf("Escolha uma das opções: \n");
     printf("soma\n");
     printf("raiz quadrada\n");
     printf("finalizar\n");
     printf("Digite o nome da opcao desejada -> ");
-    gets(opcaoMenu);
+    fgets(opcaoMenu, sizeof(20), stdin);
 
     if (!strcmp(opcaoMenu, "raiz quadrada")) {
         printf("Vamos calcular uma raiz quadrada.\nEscolha um número para descobrirmos sua raiz: \n");
         scanf("%f", &raiz);
-        raiz = sqrt(raiz);
+        raiz1 = sqrt(raiz);
 
         printf("A raiz quadrada do numero escolhido e: %.2f", raiz);
 
@@ -31,7 +31,8 @@ int main() {
 
         printf("A soma resultou %.2f", num1 + num2);
     } else {
-
+        printf("Se você não queria finalizar, tente novamente.\n");
+        return 0;
     }
 
     return 0;

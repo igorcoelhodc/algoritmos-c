@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C Algorithms - Aula 1</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            font-family: 'Courier New', monospace;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #222;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .file-list {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .file-card {
+            background-color: #e8e8e8;
+            border-left: 4px solid #666;
+            padding: 20px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .file-card:hover {
+            background-color: #d9d9d9;
+            border-left-color: #333;
+        }
+        
+        .file-name {
+            color: #444;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .file-path {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .file-code {
+            background-color: #f3f3f3;
+            border: 1px solid #d4d4d4;
+            border-radius: 4px;
+            padding: 12px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #222;
+        }
+
+        .error {
+            color: #8b1e1e;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Algoritmos em C - Aula 1</h1>
+        <div class="file-list" id="fileList">
+            <p style="text-align: center; color: #999;">Carregando arquivos...</p>
+        </div>
+    </div>
+    
+    <script>
+        const fallbackFiles = [
+            'exercicio1.c',
+            'exercicio2.c',
+            'exercicio3.c',
+            'exercicio3-certo.c',
+            'exercicio4.c',
+            'exercicio5.c',
+            'exercicio6.c',
+            'exercicio7.c',
+            'exercicio8.c',
+            'exercicio9.c',
+            'exercicio10.c',
+            'exercicio11.c',
+            'exercicio12.c',
+            'exercicio13.c',
+            'exercicio14.c',
+            'exercicio15.c',
+            'exercicio15-certo.c',
+            'exercicio16.c',
+            'exercicio18.c',
+            'exercicio19.c'
+        ];
+
+        function escapeHtml(text) {
+            return text
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        async function getCFiles() {
+            try {
+                const response = await fetch('./aula-1/');
+                if (!response.ok) {
+                    throw new Error('Falha ao listar diretorio');
+                }
+
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                const files = Array.from(doc.querySelectorAll('a'))
+                    .map(a => {
+                        const href = (a.getAttribute('href') || '').trim();
+                        const text = (a.textContent || '').trim();
+                        const candidate = href || text;
+                        return candidate.split('/').pop();
+                    })
+                    .filter(Boolean)
+                    .filter(name => name.endsWith('.c'))
+                    .sort((a, b) => a.localeCompare(b, 'pt-BR', { numeric: true }));
+
+                return files.length > 0 ? files : fallbackFiles;
+            } catch (error) {
+                return fallbackFiles;
+            }
+        }
+
+        async function loadCFile(fileName) {
+            const response = await fetch(`./aula-1/${fileName}`);
+            if (!response.ok) {
+                throw new Error(`Falha ao carregar ${fileName}`);
+            }
+            return response.text();
+        }
+
+        async function loadFiles() {
+            try {
+                const files = await getCFiles();
+                const fileList = document.getElementById('fileList');
+                fileList.innerHTML = '';
+                
+                if (files.length === 0) {
+                    fileList.innerHTML = '<p style="text-align: center; color: #999;">Nenhum arquivo .c encontrado</p>';
+                    return;
+                }
+
+                const results = await Promise.all(
+                    files.map(async (file) => {
+                        try {
+                            const content = await loadCFile(file);
+                            return { file, content, error: null };
+                        } catch (error) {
+                            return { file, content: '', error: 'Nao foi possivel carregar este arquivo.' };
+                        }
+                    })
+                );
+
+                results.forEach(({ file, content, error }) => {
+                    const card = document.createElement('div');
+                    card.className = 'file-card';
+
+                    const safeContent = escapeHtml(content);
+                    card.innerHTML = error
+                        ? `
+                            <div class="file-name">${file}</div>
+                            <div class="file-path">aula-1/${file}</div>
+                            <div class="error">${error}</div>
+                        `
+                        : `
+                            <div class="file-name">${file}</div>
+                            <div class="file-path">aula-1/${file}</div>
+                            <pre class="file-code">${safeContent}</pre>
+                        `;
+
+                    fileList.appendChild(card);
+                });
+            } catch (error) {
+                document.getElementById('fileList').innerHTML = 
+                    '<p style="text-align: center; color: #999;">Erro ao carregar arquivos</p>';
+            }
+        }
+        
+        loadFiles();
+    </script>
+</body>
+</html>
